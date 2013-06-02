@@ -20,9 +20,6 @@ public class CharacterCollisionHandler : AbstractCollisionHandler {
         _colliderBoundsOffsetX = this.collider.bounds.extents.x;
         _colliderBoundsOffsetY = this.collider.bounds.extents.y;
 
-        // Get the angle of the slow
-
-
         // a collision in the direction we are moving means we should stop moving
         if (_character.isMovingRight && fromDirection == Vector3.right ||
             _character.isMovingLeft && fromDirection == Vector3.left) {
