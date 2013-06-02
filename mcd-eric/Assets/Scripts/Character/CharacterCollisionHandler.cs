@@ -11,14 +11,15 @@ public class CharacterCollisionHandler : AbstractCollisionHandler {
         base.Awake();
         _character = GetComponent<CharacterState>();
         _transform = this.transform;
-        _colliderBoundsOffsetX = this.collider.bounds.extents.x;
-        _colliderBoundsOffsetY = this.collider.bounds.extents.y;
     }
 
     /// <summary>
     /// Stop the character's movement in the direction the collision came from.
     /// </summary>
     public override void HandleCollision(Collider collidedWith, Vector3 fromDirection, float distance) {
+        _colliderBoundsOffsetX = this.collider.bounds.extents.x;
+        _colliderBoundsOffsetY = this.collider.bounds.extents.y;
+
         // a collision in the direction we are moving means we should stop moving
         if (_character.isMovingRight && fromDirection == Vector3.right ||
             _character.isMovingLeft && fromDirection == Vector3.left) {

@@ -86,6 +86,9 @@ public abstract class AbstractCharacterController : MonoBehaviour {
         float absoluteDistance;
         RaycastHit hitInfo;
 
+        _colliderBoundsOffsetX = this.collider.bounds.extents.x;
+        _colliderBoundsOffsetY = this.collider.bounds.extents.y;
+
         // cast horizontal rays
         float hVelocity = _character.velocity.x;
 

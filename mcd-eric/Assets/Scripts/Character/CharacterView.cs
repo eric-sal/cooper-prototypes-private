@@ -40,7 +40,7 @@ public class CharacterView : MonoBehaviour {
                 if (_character.isWalking) {
                     if (_currentAnimation != Animations.WalkRight) {
                         _currentAnimation = Animations.WalkRight;
-                        _sprite.ShowFrame(13);
+                        _sprite.ShowFrame(9);
                         _sprite.Play("WalkRight");
                     }
                 } else if (_character.isJumping) {
@@ -51,7 +51,7 @@ public class CharacterView : MonoBehaviour {
                 } else {
                     if (_currentAnimation != Animations.StandRight) {
                         _currentAnimation = Animations.StandRight;
-                        _sprite.ShowFrame(7);
+                        _sprite.ShowFrame(5);
                     }
                 }
             } else {
@@ -59,7 +59,7 @@ public class CharacterView : MonoBehaviour {
                 if (_character.isWalking) {
                     if (_currentAnimation != Animations.WalkLeft) {
                         _currentAnimation = Animations.WalkLeft;
-                        _sprite.ShowFrame(10);
+                        _sprite.ShowFrame(6);
                         _sprite.Play("WalkLeft");
                     }
                 } else if (_character.isJumping) {
@@ -70,7 +70,7 @@ public class CharacterView : MonoBehaviour {
                 } else {
                     if (_currentAnimation != Animations.StandLeft) {
                         _currentAnimation = Animations.StandLeft;
-                        _sprite.ShowFrame(6);
+                        _sprite.ShowFrame(4);
                     }
                 }
             }
