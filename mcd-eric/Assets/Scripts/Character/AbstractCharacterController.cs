@@ -33,8 +33,6 @@ public abstract class AbstractCharacterController : MonoBehaviour {
         _character.position.x = _transform.position.x;
         _character.position.y = _transform.position.y;
 
-        _colliderBoundsOffsetX = this.collider.bounds.extents.x;
-        _colliderBoundsOffsetY = this.collider.bounds.extents.y;
         _skinThickness = 0.01f;
         _jumpTolerance = 30.0f;
     }
@@ -106,7 +104,7 @@ public abstract class AbstractCharacterController : MonoBehaviour {
                 Physics.Raycast(rayOrigin - yOffset, hDirection, out hitInfo, absoluteDistance)) {
 
                 // a horizontal collision has occurred
-                _collisionHandler.OnCollision(hitInfo.collider, hDirection, hitInfo.distance);
+                _collisionHandler.OnCollision(hitInfo.collider, hDirection, hitInfo.distance, hitInfo.normal);
 
             } else {
                 // we didn't have a horizontal collision, offset the vertical rays by the amount the player moved
@@ -118,7 +116,7 @@ public abstract class AbstractCharacterController : MonoBehaviour {
         float vVelocity = _character.velocity.y;
 
         // even if we're not currently moving in the y direction, cast a ray in the direction of gravity (i.e. down)
-        Vector3 vDirection = (vVelocity > 0) ? Vector3.up : Vector3.down;
+        Vector3 vDirection = vVelocity > 0 ? Vector3.up : Vector3.down;
 
         float vDistance = vVelocity * deltaTime;
         absoluteDistance = Mathf.Abs(vDistance) + _colliderBoundsOffsetY + _skinThickness;
@@ -130,7 +128,7 @@ public abstract class AbstractCharacterController : MonoBehaviour {
             Physics.Raycast(rayOrigin - xOffset, vDirection, out hitInfo, absoluteDistance)) {
 
             // a vertical collision has occurred
-            _collisionHandler.OnCollision(hitInfo.collider, vDirection, hitInfo.distance);
+            _collisionHandler.OnCollision(hitInfo.collider, vDirection, hitInfo.distance, hitInfo.normal);
 
         } else {
             _character.isGrounded = false;
@@ -153,11 +151,7 @@ public abstract class AbstractCharacterController : MonoBehaviour {
     }
 
     public virtual void Jump(float multiplier = 1.0f) {
-        if (_character.isJumping) {
-            return;
-        }
-
-        if (Mathf.Abs(_character.velocity.y) <= _jumpTolerance) {
+        if (!_character.isJumping) {
             _character.isGrounded = _character.isWalking = false;
             _character.isJumping = true;
             _character.velocity.y += _character.jumpSpeed * multiplier;
