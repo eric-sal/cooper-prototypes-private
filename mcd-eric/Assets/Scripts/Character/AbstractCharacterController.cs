@@ -33,6 +33,9 @@ public abstract class AbstractCharacterController : MonoBehaviour {
         _character.position.x = _transform.position.x;
         _character.position.y = _transform.position.y;
 
+        _colliderBoundsOffsetX = this.collider.bounds.extents.x;
+        _colliderBoundsOffsetY = this.collider.bounds.extents.y;
+
         _skinThickness = 0.01f;
         _jumpTolerance = 30.0f;
     }
@@ -59,7 +62,12 @@ public abstract class AbstractCharacterController : MonoBehaviour {
 
         // move the character
         float x = _transform.position.x + _character.velocity.x * dt;
-        float y = _transform.position.y + _character.velocity.y * dt;
+        float y = _transform.position.y;
+        if (!_character.isGrounded) {
+            y += _character.velocity.y * dt;
+        }
+
+
         _transform.position = new Vector3(x, y, 0);
         _character.position = new Vector2(x, y);
 
@@ -84,9 +92,6 @@ public abstract class AbstractCharacterController : MonoBehaviour {
         float absoluteDistance;
         RaycastHit hitInfo;
 
-        _colliderBoundsOffsetX = this.collider.bounds.extents.x;
-        _colliderBoundsOffsetY = this.collider.bounds.extents.y;
-
         // cast horizontal rays
         float hVelocity = _character.velocity.x;
 
@@ -99,13 +104,13 @@ public abstract class AbstractCharacterController : MonoBehaviour {
 
             Vector3 yOffset = new Vector3(0, _colliderBoundsOffsetY - _skinThickness, 0);
 
+            Debug.DrawRay(rayOrigin, new Vector3(absoluteDistance * hDirection.x, 0, 0), Color.magenta);
             if (Physics.Raycast(rayOrigin, hDirection, out hitInfo, absoluteDistance) ||
                 Physics.Raycast(rayOrigin + yOffset, hDirection, out hitInfo, absoluteDistance) ||
                 Physics.Raycast(rayOrigin - yOffset, hDirection, out hitInfo, absoluteDistance)) {
 
                 // a horizontal collision has occurred
                 _collisionHandler.OnCollision(hitInfo.collider, hDirection, hitInfo.distance, hitInfo.normal);
-
             } else {
                 // we didn't have a horizontal collision, offset the vertical rays by the amount the player moved
                 rayOrigin.x += hDistance;
@@ -123,13 +128,13 @@ public abstract class AbstractCharacterController : MonoBehaviour {
 
         Vector3 xOffset = new Vector3(_colliderBoundsOffsetX - _skinThickness, 0, 0);
 
+        Debug.DrawRay(rayOrigin, new Vector3(0, absoluteDistance * vDirection.y, 0), Color.magenta);
         if (Physics.Raycast(rayOrigin, vDirection, out hitInfo, absoluteDistance) ||
             Physics.Raycast(rayOrigin + xOffset, vDirection, out hitInfo, absoluteDistance) ||
             Physics.Raycast(rayOrigin - xOffset, vDirection, out hitInfo, absoluteDistance)) {
 
             // a vertical collision has occurred
             _collisionHandler.OnCollision(hitInfo.collider, vDirection, hitInfo.distance, hitInfo.normal);
-
         } else {
             _character.isGrounded = false;
         }
@@ -151,10 +156,10 @@ public abstract class AbstractCharacterController : MonoBehaviour {
     }
 
     public virtual void Jump(float multiplier = 1.0f) {
-        if (!_character.isJumping) {
+        if (_character.isGrounded || Mathf.Abs(_character.velocity.y) <= _jumpTolerance) {
             _character.isGrounded = _character.isWalking = false;
             _character.isJumping = true;
-            _character.velocity.y += _character.jumpSpeed * multiplier;
+            _character.velocity.y = _character.jumpSpeed * multiplier;
         }
     }
 

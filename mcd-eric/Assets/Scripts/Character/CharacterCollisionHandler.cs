@@ -13,13 +13,15 @@ public class CharacterCollisionHandler : AbstractCollisionHandler {
         _transform = this.transform;
     }
 
+    public void Start() {
+        _colliderBoundsOffsetX = this.collider.bounds.extents.x;
+        _colliderBoundsOffsetY = this.collider.bounds.extents.y;
+    }
+
     /// <summary>
     /// Stop the character's movement in the direction the collision came from.
     /// </summary>
     public override void HandleCollision(Collider collidedWith, Vector3 fromDirection, float distance, Vector3 normal) {
-        _colliderBoundsOffsetX = this.collider.bounds.extents.x;
-        _colliderBoundsOffsetY = this.collider.bounds.extents.y;
-
         // a collision in the direction we are moving means we should stop moving
         if (_character.isMovingRight && fromDirection == Vector3.right ||
             _character.isMovingLeft && fromDirection == Vector3.left) {
@@ -56,23 +58,21 @@ public class CharacterCollisionHandler : AbstractCollisionHandler {
             }
 
             _transform.position = new Vector3(_transform.position.x + hDistance, _transform.position.y + vDistance, 0);
-
         } else if (_character.isMovingUp && fromDirection == Vector3.up ||
-            _character.isMovingDown && fromDirection == Vector3.down) {
-
-            // We need there to be a constant downward gravitational force in order to
-            // smoothly walk down slopes, so we never set the Y velocity to 0. However,
-            // this screws up our collision detection, and mario will get partially
-            // stuck in the ground after landing.
-            //_character.velocity.y = 0;
+                   _character.isMovingDown && fromDirection == Vector3.down) {
 
             float vDistance = (distance - _colliderBoundsOffsetY) * fromDirection.y;
-
             if (fromDirection == Vector3.down) {
                 _character.isGrounded = true;
                 _character.isJumping = false;
+
+                // We need there to be a constant downward gravitational force in order to smoothly walk down slopes.
+                _character.velocity.y = SceneController.GRAVITY;
+            } else {
+                // When we bump our heads, we have to set the y-velocity to 0 to simulate reaching the peak of o jump
+                _character.velocity.y = 0;
             }
-         
+
             _transform.position = new Vector3(_transform.position.x, _transform.position.y + vDistance, 0);
         }
     }
