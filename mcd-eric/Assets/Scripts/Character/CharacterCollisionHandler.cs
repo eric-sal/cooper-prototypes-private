@@ -65,11 +65,8 @@ public class CharacterCollisionHandler : AbstractCollisionHandler {
             if (fromDirection == Vector3.down) {
                 _character.isGrounded = true;
                 _character.isJumping = false;
-
-                // We need there to be a constant downward gravitational force in order to smoothly walk down slopes.
-                _character.velocity.y = SceneController.GRAVITY;
             } else {
-                // When we bump our heads, we have to set the y-velocity to 0 to simulate reaching the peak of o jump
+                // When we bump our heads, we have to set the y-velocity to 0 to simulate reaching the peak of a jump.
                 _character.velocity.y = 0;
             }
 

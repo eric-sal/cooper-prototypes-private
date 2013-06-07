@@ -37,7 +37,7 @@ public abstract class AbstractCharacterController : MonoBehaviour {
         _colliderBoundsOffsetY = this.collider.bounds.extents.y;
 
         _skinThickness = 0.01f;
-        _jumpTolerance = 30.0f;
+        _jumpTolerance = 100.0f;
     }
 
     /// <summary>
@@ -66,7 +66,6 @@ public abstract class AbstractCharacterController : MonoBehaviour {
         if (!_character.isGrounded) {
             y += _character.velocity.y * dt;
         }
-
 
         _transform.position = new Vector3(x, y, 0);
         _character.position = new Vector2(x, y);
@@ -136,6 +135,12 @@ public abstract class AbstractCharacterController : MonoBehaviour {
             // a vertical collision has occurred
             _collisionHandler.OnCollision(hitInfo.collider, vDirection, hitInfo.distance, hitInfo.normal);
         } else {
+            if (_character.isGrounded) {
+                // We were on the ground, and now we're not (i.e. we've walked off a ledge), so set the
+                // velocity to 0 as if we've reached the peak of a jump, and we're on the way back down.
+                _character.velocity.y = 0;
+            }
+
             _character.isGrounded = false;
         }
 
