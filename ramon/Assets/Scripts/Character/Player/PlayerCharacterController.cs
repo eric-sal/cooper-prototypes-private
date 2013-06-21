@@ -8,7 +8,7 @@ public class PlayerCharacterController : AbstractCharacterController {
 
     protected override void Act() {
 
-        _character.velocity.x = _character.maxWalkSpeed * _horizontalInput;
+        _moveable.velocity.x = _character.maxWalkSpeed * _horizontalInput;
 
         if (_horizontalInput > 0) {
             _character.facing = Vector2.right;

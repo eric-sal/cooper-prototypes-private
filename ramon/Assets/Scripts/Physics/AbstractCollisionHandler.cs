@@ -14,9 +14,6 @@ public abstract class AbstractCollisionHandler : MonoBehaviour {
     // so we can reuse the same block of memory when dispatching the collision handlers
     private System.Object[] _args;
 
-    // to confine population of _methodInfoTable to a single thread
-    private static object _theConch = new System.Object();
-
     // so we can dispatch to the correct overloads based on the run-time types of the collision handlers
     private static Dictionary<string, Dictionary<string, MethodInfo>> _methodInfoTable;
 
@@ -33,34 +30,31 @@ public abstract class AbstractCollisionHandler : MonoBehaviour {
     /// </summary>
     private void BuildMethodInfoTable() {
 
-        lock (_theConch) {
+        if (_methodInfoTable != null) {
+            // another instance already built the table earlier
+            return;
+        }
 
-            if (_methodInfoTable != null) {
-                // another instance already built the table earlier
-                return;
+        _methodInfoTable = new Dictionary<string, Dictionary<string, MethodInfo>>();
+        Type baseType = System.Type.GetType("AbstractCollisionHandler");
+
+        foreach (Type t in Assembly.GetCallingAssembly().GetTypes()) {
+
+            // skip any Type that does not inherit from baseType
+            if (!t.IsSubclassOf(baseType)) {
+                continue;
             }
 
-            _methodInfoTable = new Dictionary<string, Dictionary<string, MethodInfo>>();
-            Type baseType = System.Type.GetType("AbstractCollisionHandler");
+            // create an entry in our table for this type
+            string thisName = t.Name;
+            _methodInfoTable.Add(thisName, new Dictionary<string, MethodInfo>());
 
-            foreach (Type t in Assembly.GetCallingAssembly().GetTypes()) {
-
-                // skip any Type that does not inherit from baseType
-                if (!t.IsSubclassOf(baseType)) {
-                    continue;
-                }
-
-                // create an entry in our table for this type
-                string thisName = t.Name;
-                _methodInfoTable.Add(thisName, new Dictionary<string, MethodInfo>());
-
-                foreach (MethodInfo mi in t.GetMethods()) {
-                    if (mi.Name == "HandleCollision") {
-                        // add this method to our table
-                        ParameterInfo[] pars = mi.GetParameters();
-                        string otherName = pars[0].ParameterType.Name;
-                        _methodInfoTable[thisName].Add(otherName, mi);
-                    }
+            foreach (MethodInfo mi in t.GetMethods()) {
+                if (mi.Name == "HandleCollision") {
+                    // add this method to our table
+                    ParameterInfo[] pars = mi.GetParameters();
+                    string otherName = pars[0].ParameterType.Name;
+                    _methodInfoTable[thisName].Add(otherName, mi);
                 }
             }
         }
@@ -120,6 +114,10 @@ public abstract class AbstractCollisionHandler : MonoBehaviour {
     the compile-time type.
     */
     public virtual void HandleCollision(CharacterCollisionHandler other, Vector3 fromDirection, float distance) {
+        DefaultHandleCollision(other, fromDirection, distance);
+    }
+
+    public virtual void HandleCollision(PlatformCollisionHandler other, Vector3 fromDirection, float distance) {
         DefaultHandleCollision(other, fromDirection, distance);
     }
 }
