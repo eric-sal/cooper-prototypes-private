@@ -5,26 +5,25 @@ public class CharacterCollisionHandler : AbstractCollisionHandler {
     protected CharacterState _character;
     protected MoveableObject _moveable;
     protected Transform _transform;
-    protected float _colliderBoundsOffsetX;
-    protected float _colliderBoundsOffsetY;
+    protected float _skinThickness;
 
     public override void Awake() {
         base.Awake();
         _character = GetComponent<CharacterState>();
         _moveable = GetComponent<MoveableObject>();
         _transform = this.gameObject.transform;
-        _colliderBoundsOffsetX = this.gameObject.collider.bounds.extents.x;
-        _colliderBoundsOffsetY = this.gameObject.collider.bounds.extents.y;
+        _skinThickness = 0.01f;
     }
 
     /// <summary>
     /// Stop the character's movement in the direction the collision came from.
     /// </summary>
-    public override void HandleCollision(Collider collidedWith, Vector3 fromDirection, float distance) {
+    public override void HandleCollision(Collider collidedWith, Vector3 fromDirection, float distance, Vector3 surfaceNormal) {
         // a collision in the direction we are moving means we should stop moving
         if (_moveable.isMovingRight && fromDirection == Vector3.right ||
             _moveable.isMovingLeft && fromDirection == Vector3.left) {
-            float hDistance = distance - _colliderBoundsOffsetX;
+
+            float hDistance = distance - _skinThickness;
          
             _moveable.velocity.x = 0;
             if (fromDirection == Vector3.left) {
@@ -37,7 +36,7 @@ public class CharacterCollisionHandler : AbstractCollisionHandler {
             _moveable.isMovingDown && fromDirection == Vector3.down) {
 
             _moveable.velocity.y = 0;
-            float vDistance = distance - _colliderBoundsOffsetY;
+            float vDistance = distance - _skinThickness;
 
             if (fromDirection == Vector3.down) {
                 _character.isJumping = false;
@@ -48,10 +47,10 @@ public class CharacterCollisionHandler : AbstractCollisionHandler {
         }
     }
 
-    public override void HandleCollision(PlatformCollisionHandler platform, Vector3 fromDirection, float distance) {
+    public override void HandleCollision(PlatformCollisionHandler platform, Vector3 fromDirection, float distance, Vector3 surfaceNormal) {
         if (fromDirection == Vector3.down) {
-            _moveable.lastPlatform = platform;
+            _moveable.currentPlatform = platform;
         }
-        HandleCollision(platform.gameObject.collider, fromDirection, distance);
+        HandleCollision(platform.gameObject.collider, fromDirection, distance, surfaceNormal);
     }
 }

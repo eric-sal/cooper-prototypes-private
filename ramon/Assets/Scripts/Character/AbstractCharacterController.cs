@@ -45,7 +45,7 @@ public abstract class AbstractCharacterController : MonoBehaviour {
         float dt = Time.deltaTime;
         _moveable.Move(dt);
 
-        if (_moveable.lastPlatform != null) {
+        if (_moveable.currentPlatform != null) {
             _character.isWalking = _moveable.velocity.x != 0;
         }
     }
@@ -57,7 +57,7 @@ public abstract class AbstractCharacterController : MonoBehaviour {
 
         if (Mathf.Abs(_moveable.velocity.y) <= _jumpTolerance) {
             _character.isJumping = true;
-            _moveable.lastPlatform = null;
+            _moveable.currentPlatform = null;
             _moveable.velocity.y += _character.jumpSpeed * multiplier;
         }
     }
